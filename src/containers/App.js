@@ -1,4 +1,4 @@
-import React,{Component} from 'react';
+import React,{useState,useEffect} from 'react';
 import Cardlist from '../components/Cardlist';
 //import {robots} from './robots';
 import Searchbox from '../components/Searchbox';
@@ -8,39 +8,32 @@ import ErrorBoundary from '../components/ErrorBoundary';
 
 
 
-class App extends Component {
-    constructor()
-    {
-        super();
-        this.state={
-            robots: [],
-            searchfield: ''
-        }
-    console.log('constructor');
-    }
+function App() {
+
+    const [robots,setRobots] = useState([]);
+    const [searchfield,setSearchfield] = useState('');
 
     //not part of react, my own function
-    onSearch = (event) => {
-        this.setState({searchfield: event.target.value});
+    const onSearch = (event) => {
+        setSearchfield(event.target.value);
         console.log('onSearch');
     }
 
-    componentDidMount()
-    {
+    //runs everytime App() runs. When app renders - first paramter
+    // Array as second argument
+    useEffect(() => {
         fetch('https://jsonplaceholder.typicode.com/users')
-        .then(Response => Response.json())
-        .then(users => {this.setState({robots:users})});
-        console.log('componentDidMount');
-    }
+          .then(Response => Response.json())
+            .then(users => {
+                setRobots(users);
+            });
+         console.log('componentDidMount');
+    },[]);
 
-    //runs everytime state changes
-    render() {
-        const  {robots,searchfield}=this.state;
-        const filterrobots=this.state.robots.filter(robots =>
+        const filterrobots=robots.filter(robots =>
             {
                 return robots.name.toLocaleLowerCase().includes(searchfield.toLocaleLowerCase());
             });
-        console.log('render');
             if(robots.length === 0)
             {
                return <h1>LOADING...</h1>;
@@ -49,7 +42,8 @@ class App extends Component {
                 return (
                 <div className='tc'>
                     <h1 className='f1'>RoboFriends</h1>
-                    <Searchbox onSearch={this.onSearch}/>
+                    <button>Click me!</button>
+                    <Searchbox onSearch={onSearch}/>
                     <Scroll>
                         <ErrorBoundary>
                             <Cardlist robots={filterrobots}/>
@@ -58,7 +52,6 @@ class App extends Component {
                 </div>
                 );
             }
-        }
-}
+};
 
 export default App;
